@@ -8,10 +8,10 @@ namespace SyncDirectoryService
     public class Service
     {
         private readonly Timer timer;
-        
+
         public Service()
         {
-            timer = new Timer(10000) { AutoReset = true};
+            timer = new Timer(10000) { AutoReset = true };
             timer.Elapsed += TimerElapsed;
         }
 
@@ -46,7 +46,7 @@ namespace SyncDirectoryService
 
             foreach (var dirName in sourceDirNames)
             {
-                var dirExist = Directory.Exists(Path.Combine(targetParentDir, dirName));
+                var dirExist = Directory.Exists(Path.Combine(targetParentDir, dirName)); //Kör contains mot targetDirNames
                 if (!dirExist)
                 {
                     Directory.CreateDirectory(Path.Combine(targetParentDir, dirName));
@@ -70,24 +70,39 @@ namespace SyncDirectoryService
 
         private static void SyncFiles(string sourceParentDir, string targetParentDir)
         {
+            // Get source file paths
             var sourceFilePaths = Directory.GetFiles(sourceParentDir);
+            var sourceFileNames = sourceFilePaths.Select(x => x.Substring(sourceParentDir.Length + 1)).ToList();
 
-            foreach (var filePath in sourceFilePaths)
+            // Get target file names
+            var targetFilePaths = Directory.GetFiles(targetParentDir);
+            var targetFileNames = targetFilePaths.Select(x => x.Substring(targetParentDir.Length + 1)).ToList();
+
+            foreach (var fileName in sourceFileNames)
             {
-                var fileName = filePath.Substring(sourceParentDir.Length + 1);
+                //var fileName = filePath.Substring(sourceParentDir.Length + 1);
                 var fileExist = File.Exists(Path.Combine(targetParentDir, fileName));
                 if (!fileExist)
                 {
-                    File.Copy(filePath, Path.Combine(targetParentDir, fileName));
+                    File.Copy(Path.Combine(sourceParentDir, fileName), Path.Combine(targetParentDir, fileName));
                 }
                 else
                 {
-                    var sourceFileDate = File.GetLastWriteTime(filePath);
+                    targetFileNames.Remove(fileName);
+                    var sourceFileDate = File.GetLastWriteTime(Path.Combine(sourceParentDir, fileName));
                     var targetFileDate = File.GetLastWriteTime(Path.Combine(targetParentDir, fileName));
                     if (sourceFileDate > targetFileDate)
                     {
-                        File.Copy(filePath, Path.Combine(targetParentDir, fileName), true);
+                        File.Copy(Path.Combine(sourceParentDir, fileName), Path.Combine(targetParentDir, fileName), true);
                     }
+                }
+            }
+
+            if (targetFileNames.Any())
+            {
+                foreach (var fileName in targetFileNames)
+                {
+                    File.Delete(Path.Combine(targetParentDir, fileName));
                 }
             }
         }
