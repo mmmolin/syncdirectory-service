@@ -46,7 +46,7 @@ namespace SyncDirectoryService
 
             foreach (var dirName in sourceDirNames)
             {
-                var dirExist = Directory.Exists(Path.Combine(targetParentDir, dirName)); //Kör contains mot targetDirNames
+                var dirExist = targetDirNames.Contains(dirName);
                 if (!dirExist)
                 {
                     Directory.CreateDirectory(Path.Combine(targetParentDir, dirName));
@@ -80,8 +80,7 @@ namespace SyncDirectoryService
 
             foreach (var fileName in sourceFileNames)
             {
-                //var fileName = filePath.Substring(sourceParentDir.Length + 1);
-                var fileExist = File.Exists(Path.Combine(targetParentDir, fileName));
+                var fileExist = targetFileNames.Contains(fileName);
                 if (!fileExist)
                 {
                     File.Copy(Path.Combine(sourceParentDir, fileName), Path.Combine(targetParentDir, fileName));
