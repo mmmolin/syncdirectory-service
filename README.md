@@ -3,5 +3,5 @@
 A Windows Service that synchronizes a source directory and all it's subdirectories to a target directory.
 
 # What I've learned
-* Creating a Windows Service with Topshelf
+* Creating a Windows Service using Topshelf
 * Recursion
